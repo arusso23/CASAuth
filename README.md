@@ -47,6 +47,20 @@ Assume $WIKI is the directory for your wiki.
 
 6.  You should now have working CAS authentication for your wiki!
 
+Proxy support and custom CAS certificate
+----------------------------------------
+Alternatively, if you need to deal with a proxy or if your CAS has 
+a custom / self-signed certificate, you can use part of the following code in step 4. above
+
+```php
+require_once( "$IP/extensions/CASAuth/CASAuth.php" );
+phpCAS::setCasServerCACert('/path/to/ca-bundle.crt');
+phpCAS::setExtraCurlOption(CURLOPT_PROXY, 'proxy.localnet');
+phpCAS::setExtraCurlOption(CURLOPT_PROXYPORT, 8080);
+phpCAS::setExtraCurlOption(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+casSetup();
+```
+
 Credits
 -------
 

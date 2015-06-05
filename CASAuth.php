@@ -95,14 +95,13 @@ function casLogin($user, &$result) {
 
                 $lg = Language::factory($wgLanguageCode);
 
-                if ($_REQUEST["title"] == $lg->specialPage("Userlogin")) {  
+                if ($_REQUEST["title"] == $lg->specialPage("Userlogin")) {
+						if(!$casIsSetUp){
+								error_log("CASAuth.php:casLogin - casSetup() was not called");
+								return false;
+						}  
                         // Setup for a web request
                         require_once("$IP/includes/WebStart.php");
-
-                        // Load phpCAS
-                        require_once($CASAuth["phpCAS"]."/CAS.php");
-                        if(!$casIsSetUp)
-                                return false;
 
                         //Will redirect to CAS server if not logged in
                         phpCAS::forceAuthentication();
@@ -179,8 +178,10 @@ function casLogout() {
         global $CASAuth;
         global $casIsSetUp;
         global $wgUser, $wgRequest, $wgLanguageCode;
-
-        require_once($CASAuth["phpCAS"]."/CAS.php");
+		if(!$casIsSetUp){
+				error_log("CASAuth.php:casLogout - casSetup() was not called");
+				return false;
+		}
 
         // Logout from MediaWiki
         $wgUser->logout();
@@ -194,9 +195,6 @@ function casLogout() {
                         $redirecturl = $target->getFullUrl();
                 }
         }
-
-        if(!$casIsSetUp)
-                return false;
 
         // Logout from CAS (will redirect user to CAS server)
 
@@ -254,8 +252,11 @@ function casPostAuth($ticket2logout) {
 function casSingleSignOut($ticket2logout) {
         global $CASAuth;
         global $IP;
-
-        require_once($CASAuth["phpCAS"]."/CAS.php");
+        global $casIsSetUp;
+		if(!$casIsSetUp){
+				error_log("CASAuth.php:casSingleSignOut - casSetup() was not called");
+				return false;
+		}
 
         $session_id = preg_replace('/[^\w]/','',$ticket2logout);
 

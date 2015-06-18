@@ -95,6 +95,14 @@ function casNameLookup($username) {
   return $username;
 }
 
+# If you dont like the uid that CAS returns (ie. it returns a number) you can
+# modify the routine below to return a customized real name instead.
+#
+# Default: Returns the username, untouched
+function casRealNameLookup($username) {
+  return $username;
+}
+
 # If your users aren't all on the same email domain you can
 # modify the routine below to return their email address
 #
@@ -102,5 +110,62 @@ function casNameLookup($username) {
 function casEmailLookup($username) {
   global $CASAuth;
   return $username."@".$CASAuth["EmailDomain"];
+}
+
+/*
+#Below is a couple of implementations of casRealNameLookup and casEmailLookup 
+#that will fetch user details in a separate DB based on the CAS username
+
+global $casUserData;
+$casUserData=array();
+
+#Queries the DB and caches the result in memory
+function casFetchUserData($username) {
+	global $casUserData;
+	if(isset($casUserData[$username]))
+		return $casUserData[$username];
+	## Please customize connection params to your needs
+	$dbh = mysqli_connect('host', 'user', 'pass', 'base') 
+		or die("unable to contact CAS user database");
+	if(!$dbh || $dbh->connect_error)
+    	die("CAS database error : $dbh->connect_errno: $dbh->connect_error");
+	## Please customize query to your needs keeping aliases
+	$SQL = 'SELECT x as realname, y as email FROM table WHERE userid=?';
+	$stmt=$dbh->prepare($SQL) 
+		or die("unable to prepare CAS user database request");
+	$stmt->bind_param("s", $username);
+	$stmt->execute() 
+		or die("unable to execute CAS user database request");
+	$stmt->bind_result($realname,$email);
+	$stmt->fetch()
+		or die("unable to fetch assoc CAS user database request");
+	$data =  array(
+		"realname"=>$realname,
+		"email"=>$email,
+		);
+	$stmt->close();
+	$dbh->close();
+	$casUserData[$username] = $data;
+	return $data;
+}
+
+# If you dont like the uid that CAS returns (ie. it returns a number) you can
+# modify the routine below to return a customized username instead.
+#
+# Default: Returns the username, untouched
+function casNameLookup($username) {
+  return $username;
+}
+
+# Returns the "realname" field of the query
+function casRealNameLookup($username) {
+	$tmp=casFetchUserData($username);
+	return $tmp['realname'];
+}
+
+# Returns the "email" field of the query
+function casEmailLookup($username) {
+	$tmp=casFetchUserData($username);
+	return $tmp['email'];
 }
 

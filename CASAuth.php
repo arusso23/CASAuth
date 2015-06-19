@@ -301,7 +301,6 @@ function casSetup() {
         phpCAS::setSingleSignoutCallback('casSingleSignOut');
         phpCAS::setPostAuthenticateCallback('casPostAuth');
         phpCAS::handleLogoutRequests(true,isset($CASAuth["LogoutServers"])?$CASAuth["LogoutServers"]:false);
-        phpCAS::setNoCasServerValidation();
 
         $casIsSetUp = true;
 }

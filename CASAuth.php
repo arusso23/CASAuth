@@ -233,7 +233,7 @@ function casPostAuth($ticket2logout) {
 
         // create a new session where we'll store the old session data
         session_name("casauthssoutticket");
-        session_id(preg_replace('/[^\w]/','',$ticket2logout));
+        session_id(preg_replace('/[^a-zA-Z0-9\-]/','',$ticket2logout));
         session_start();
 
         $_SESSION["old_session_name"] = $old_session_name;
@@ -257,7 +257,7 @@ function casSingleSignOut($ticket2logout) {
 
         require_once($CASAuth["phpCAS"]."/CAS.php");
 
-        $session_id = preg_replace('/[^\w]/','',$ticket2logout);
+        $session_id = preg_replace('/[^a-zA-Z0-9\-]/','',$ticket2logout);
 
         // destroy a possible application session created before phpcas
         if(session_id() !== ""){
